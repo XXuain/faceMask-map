@@ -52,13 +52,15 @@
 <script>
 // 圖層套件
 import L from "leaflet";
+import cityName from "./assets/cityName.json";
 
 let osmMap = {};
-console.log(L);
+// console.log(L);
 export default {
   name: "App",
   data: () => ({
-    mapData: []
+    mapData: [],
+    cityName
   }),
   components: {},
   mounted() {
