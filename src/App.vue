@@ -41,6 +41,8 @@
           </ul>
         </div>
       </div>
+
+      <!-- map -->
       <div class="col-sm-9">
         <div id="map"></div>
       </div>
@@ -48,6 +50,11 @@
   </div>
 </template>
 <script>
+// 圖層套件
+import L from "leaflet";
+
+let osmMap = {};
+console.log(L);
 export default {
   name: "App",
   data: () => ({
@@ -55,10 +62,24 @@ export default {
   }),
   components: {},
   mounted() {
+    // 藥局資料
     const url = "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json";
     this.$http.get(url).then(res => {
       this.mapData = res.data.features;
     });
+
+    // 建立如層 leaflet
+    osmMap = L.map("map", {
+      center: [25.03, 121.55],
+      zoom: 13
+    });
+
+    // 圖層匯入圖磚
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?{foo}", {
+      foo: "bar",
+      attribution:
+        'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
+    }).addTo(osmMap);
   }
 };
 </script>
