@@ -52,25 +52,55 @@
 <script>
 // 圖層套件
 import L from "leaflet";
-import cityName from "./assets/cityName.json";
+import countryName from "./assets/countryName.json";
 
 let osmMap = {};
 // console.log(L);
 export default {
   name: "App",
   data: () => ({
-    mapData: [],
-    cityName
+    pharmcyData: [],
+    countryName,
+    select: {
+      city: "臺北市"
+    }
   }),
-  components: {},
+  methods: {
+    // 依據 選到的城市做顯示
+    updateMap() {
+      // 該縣市所有的藥局名稱
+      const localPharmacies = this.pharmcyData.filter(
+        i => i.properties.county === this.select.city
+      );
+
+      // 加上標籤
+      localPharmacies.forEach(i => {
+        let { properties, geometry } = i;
+        let popupContent = `<strong>${properties.name}</strong><br/>
+            口罩剩餘:<strong>成人 - ${
+              properties.mask_adult ? properties.mask_adult : "無資料"
+            } / 兒童 - ${properties.mask_child ? properties.mask_child : "無資料"}</strong><br/>
+            地址: <a href="https://www.google.com.tw/maps/place/${
+              properties.address
+            }" target="_blank">${properties.address}</a><br>
+            電話: ${properties.phone}<br>
+            <small>最後更新時間: ${properties.updated}</small>`;
+
+        L.marker([geometry.coordinates[1], geometry.coordinates[0]])
+          .bindPopup(popupContent)
+          .addTo(osmMap);
+      });
+    }
+  },
   mounted() {
     // 藥局資料
     const url = "https://raw.githubusercontent.com/kiang/pharmacies/master/json/points.json";
     this.$http.get(url).then(res => {
-      this.mapData = res.data.features;
+      this.pharmcyData = res.data.features;
+      this.updateMap();
     });
 
-    // 建立如層 leaflet
+    // 建立圖層 default taipei
     osmMap = L.map("map", {
       center: [25.03, 121.55],
       zoom: 13
